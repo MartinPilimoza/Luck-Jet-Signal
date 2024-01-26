@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+     body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+       
+        }
+
+        #serverSeedInput {
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        #verificationCodeInput {
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        #roundTypeSelect {
+            padding: 8px;
+            margin-bottom: 5px;
+            color: #0ef;
+            background: black;
+            font-size: 1em;
+            font-weight: 700;
+            animation: text 10s ease-in-out infinite;
+            animation: zigzag 2.3s infinite;
+            box-shadow: 0 0 7px rgba(255,255,255,.3);
+            width: 50hv;
+        }
+
+        #generateButton, #clearButton {
+            padding: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+        }        
+        
+         #generateButton {
+            padding: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background: black;
+            color: #0ef;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        #clearButton {
+            background: black;
+            color: red;
+            animation: text 2.3s ease-in-out infinite;
+        }
+
+        #roundNumber {
+            font-size: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #freeRoundsRemaining {
+            color: red;
+            font-size: 18px;
+            font-weight: 800;
+            margin-top: -160px;
+            display: none;
+        }
+
+        #loadingContainer {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #app label {
+            color: fuchsia;
+            font-size: 1em;
+            font-weight: 1000;
+   }       
+        #loadingText, #loadingProgress {
+            font-size: 30px;
+            margin-top: 10px;            
+            display: inline-block;
+            width: 100%;
+            margin: -200px 0 50px;
+            color: lime;
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <label for="serverSeedInput">Enter Server Seed:</label>
+        <input type="text" id="serverSeedInput" placeholder="Enter Server Seed">
+
+        <label for="verificationCodeInput">Enter Verification Code:</label>
+        <input type="text" id="verificationCodeInput" placeholder="Enter Verification Code">
+
+        <label for="roundTypeSelect">Choose Bet Type:</label>
+        <select id="roundTypeSelect">
+            <option value="VIP">VIP</option>
+            <option value="free">Free</option>
+        </select>
+
+        <button id="generateButton" onclick="generateRoundNumber()">Generate Now</button>
+        <button id="clearButton" onclick="clearPage()">Clear All</button>
+
+        <div id="roundNumber">Next Round: <span id="roundNumberValue"></span></div>
+        <div id="freeRoundsRemaining">Free Rounds Remaining: <span id="freeRoundsRemainingValue"></span></div>
+
+        <div id="loadingContainer">
+            <div id="loadingText"><span id="loadingProgress">0%</span></div>
+        </div>
+    </div>
+
+    <script>
+        let freeRoundsRemaining = getCookie("freeRoundsRemaining") || 5;
+        let hoursUntilNextFreeBet = 24;
+
+        function generateRoundNumber() {
+            const serverSeedInput = document.getElementById("serverSeedInput").value;
+            const verificationCodeInput = document.getElementById("verificationCodeInput").value;
+            const roundTypeSelect = document.getElementById("roundTypeSelect");
+            const roundType = roundTypeSelect.options[roundTypeSelect.selectedIndex].value;
+
+            const seedAndValuePairs = {
+         "bddhdjddndndnddndnnndndn": 1.00,
+                 "3NjOnvIq-bSjA4VJ9F1kbyt8pE1bP1Ma6EblZiyW7Yc": 5.12,
+                    "Kn-FgMH2ml3gQRWBTvjsTgsM7QMVH3wV2GmNwGV4HCE": 5.02,
+                    "Fwa6RvTljp_fdWxvMfkbse_LRei5zgrewdQ3Ee-ko6M": 5.02,
+                    "wqPN_r0dVgaYtYElWNZCf8HW1VVCeAOz9t5olvdjKwg": 3.42,
+                    "gfB9qODuBunjJ22VPYYWkHGnUImSpAEmZ7eh3iufyTw": 3.16,
+                    "iQWqJRpg1_zSEcm4qMFUh2OZUHCaP4JzVDNs2G3pgC0": 3.02,
+                    "DuHF9h6ZSyHMSJ3sniTnYQkPLXZpE9Cew9KoAyRBIyo": 13.26,
+                    "fJmcmmxtpIwsCgLKKad6jpUfKGWfVmYWGzhmqebhhWc": 11.56,
+                    "yAGU9Be9hw24V44B36RNYGT3UDpsgCjpS9k21JFWzqI": 10.34,
+                    
+"skmNk18oJX4i6_JKu63HLX2c2Koj0VaO_06kd0CahU4": 4.74,
+
+"tDYyGmxGritb0hvn-jM0Qyk8mgVSoswgRxj0mkKZ-Yo": 4.84,
+
+"HmTN6tMMZ-3-gvzj1MdNNsQZmc19r1yHBYF4SHi_hCg": 4.51,
+
+"ySw8pkwgQWcbD3haUzzsHyNOMM9EzPbvFfdkQn8zIOo": 4.02,
+
+"D0NSaNE6cjFWSbci_35AbpwfuO0xOMhpX9BYoN4tnoc": 2.24,
+
+"Kn-FgMH2ml3gQRWBTvjsTgsM7QMVH3wV2GmNwGV4HCE": 10.58,
+
+"OW2t5CLLrHSToMGD7pXaGsqDCynTDRDdKWUhGKs0rnw": 2.13,
+
+"E6Zh1hLIN3IffQbo7VipHFXTYV91-axMrkOyEdLzHw4": 2.09,
+
+"P_yzgRzCv9TgZlltBsJP7tMw2iqYqHZhtWDfmt3D4w4": 2.09,
+
+"HS9cyNbbMqVt8xMz2uzi8nn8zynSFcBNBNDseVoXXHQ": 2.61,
+
+"QiDoUqEi6n5OPt6cAyWMDZm8yQtR6ybgj8kHTxt9Fkw": 2.83,
+
+"gO1LZkfnFWCtbQfWjMmqr5a84xajND5A1QhCQ3ZhHEg": 2.21,
+
+"LvcbhNpa_qtXIUN7S4x-nKaFYYp84eV65xr9O_E7XMY": 1.23,
+
+"QsM7jpCnLuXphY4QV8TYlgoTLkBa3l-OMU_St_4so0o": 1.24,
+
+"8nHAS3MmzE-FavVrf_izzShJSEfQck-0ivSrIjDb-Yw": 1.46,
+
+"VuoSZx8p06ImEEZ0LMIkIGvuoLdZbVkh6ZcNXNtbD_s": 1.15,
+
+"xNrviX0Eo6KdqER9pfRBWKNOtRIETGYR3OTWR7gvG4U": 1.16,
+
+"utMVMxSQdBCXyuw-u99mYGpw83BqKedw12dP1w3wBqQ": 1.19,
+
+"lKvtvLknjKgacc3cQkiThpIYJGBSS0DbMlWyOOScg24": 1.14,
+
+"zxaQnxtU-4_t6SypK9ImdnFFw0RgnCenVeKuQBEgAlc": 1.06,
+
+"tDYyGmxGritb0hvn-jM0Qyk8mgVSoswgRxj0mkKZ-Yo": 1.05,
+
+"_MEDyy4AyArg1X7bkaLGlzrOMV200NgTVY18DxfRmMs": 1.48,
+
+"UNPAjo1J3XQ4E1drWDJKFlYSAVVpb_Z9MeRwPwEguic": 1.41,
+
+"gI9qMQr_zDIIN_jqV0UNJDFZCacwed7b__CFM4U_YBg": 1.77,
+
+"ZdmP9O6HaXW5N_EcKRMUxU0PV1OTpVVfxQ1Utac7sio": 1.85,
+
+"RIbTl28UOii9ml_YEfUf9mSJ-ZvdEWTx04dg-5urkB8": 1.66,
+
+"LtRMjmHEd0FGEHB2a0PimMegTvaltFuz16LLLq_rrjE": 1.64,
+
+"myrokEMpfH4fs9mXLMdGRflIr3qTugbHlC6C5_k2UYc": 1.36,
+
+"UNPAjo1J3XQ4E1drWDJKFlYSAVVpb_Z9MeRwPwEguic": 1.32,
+
+"iYh2b21v1ZWy9AjCqzvSEeHo7f_WWLN-dlM9F_SsTp0": 1.33,
+
+"oCcjMOrcpLXF8aWwDLnI5G3e12HYild86RSC4PV_9t4": 1.42,
+
+"mO003xeWcrJGF3jJzizA3KsukMYjbmkh5tq_9qe2Lzk": 1.52,
+
+"-hKdr-zZDALolWB12OjHK6nUq8iYi5A8AcwY1pFYnVY": 1.55,
+
+"gITo0rSl1rWlRFwPChJVNUpkq4Vjaaq-eUmfY5eyeHU": 1.55,
+
+"uq6lBvjkIZGKbzrVQ9-Nv-X72taU0s4dvwkeBv7U17U": 1.57,
+
+"oCcjMOrcpLXF8aWwDLnI5G3e12HYild86RSC4PV_9t4": 1.59,
+
+"fa3tM1Jt4i2gQ0xoE2LGW-pl9NScZQzkxn2fuIUrPsw": 1.53,
+
+"5Um1WPbyka6gv2r4qIZyCnBzGOlVdIMppCJUQH0XE1w": 1.53,
+
+"rYHUdbMoQvaElQg7OeWFHtD-4JkOTnkaOdxv983Vmi4": 1.00,
+
+"strIEwxt-zACAQCjWKcCHvUkCsw3TqlYcazK4hJlnCE": 1.00,
+
+"pdfpIHlQjqjF_v4lLdUptTGi_MEdgPp7-1EjdFRvV90": 1.00,
+
+"rESl4N9PU5UkRfUzbE-DdwsvgfkFZTQa5e1H37dcVjU": 1.00,
+
+"79h-6lpNZ-ELekFFPBM-7bDvxtI1Phj8WCoBz6NQ9WI": 1.03,
+
+"VJhc7qILxBGMPIMvmF_EQYe6CVlJIC8kqlUaVXlCcCE": 1.12,
+
+"hADzchHrIVQFVsyYzA4wFwDx0JQHJb88gOd_aOtm3ms": 1.11,
+
+"L03aNKyMoFVgtMT0dbVyKwiX2JXwnkPtZENqQqQxrds": 1.16,
+            };
+
+            const loadingContainer = document.getElementById("loadingContainer");
+            const loadingProgress = document.getElementById("loadingProgress");
+            const roundNumber = document.getElementById("roundNumber");
+            const roundNumberValue = document.getElementById("roundNumberValue");
+            const freeRoundsRemainingElement = document.getElementById("freeRoundsRemaining");
+            const freeRoundsRemainingValue = document.getElementById("freeRoundsRemainingValue");
+            const generateButton = document.getElementById("generateButton");
+
+            if (roundType === "VIP" && verificationCodeInput !== "9917") {
+                ("");
+                return;
+            }
+
+            if (roundType === "free" && freeRoundsRemaining <= 0) {
+                alert("Free Round Limit Reached. Please wait for 24 hours to get more.");
+                return;
+            }
+
+            loadingContainer.style.display = "block";
+            loadingProgress.innerText = "0%";
+
+            let percentage = 0;
+            const maxPercentage = roundType === "VIP" ? 100 : 50;
+
+            const interval = setInterval(() => {
+                loadingProgress.innerText = `${percentage}%`;
+                if (percentage === maxPercentage) {
+                    clearInterval(interval);
+                    loadingProgress.innerText = "☑";
+                    setTimeout(() => {
+                        const matchedSeedAndValue = findMatchingSeed(seedAndValuePairs, serverSeedInput);
+                        loadingContainer.style.display = "none";
+
+                        if (matchedSeedAndValue !== null) {
+                            roundNumber.style.display = "block";
+                            roundNumberValue.innerText = matchedSeedAndValue.toFixed(2);
+
+                            if (roundType === "free") {
+                                freeRoundsRemainingValue.innerText = --freeRoundsRemaining;
+                                freeRoundsRemainingElement.style.display = "block";
+                                setCookie("freeRoundsRemaining", freeRoundsRemaining, hoursUntilNextFreeBet);
+                            }
+                        } else {
+                            roundNumber.style.display = "none";
+                            alert("Invalid server seed. Please enter a valid server seed.");
+                        }
+                    }, 1000);
+                }
+                percentage++;
+            }, maxPercentage / 10);
+        }
+
+        function findMatchingSeed(seedAndValuePairs, partialSeed) {
+            for (const seed in seedAndValuePairs) {
+                if (seed.includes(partialSeed)) {
+                    return seedAndValuePairs[seed];
+                }
+            }
+            return null;
+        }
+
+        function clearPage() {
+            document.getElementById("serverSeedInput").value = "";
+            document.getElementById("verificationCodeInput").value = "";
+            document.getElementById("roundTypeSelect").selectedIndex = 0;
+            document.getElementById("roundNumber").style.display = "none";
+            document.getElementById("freeRoundsRemaining").style.display = "none";
+            document.getElementById("loadingContainer").style.display = "none";
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        function setCookie(name, value, hours) {
+            const date = new Date();
+            date.setTime(date.getTime() + (hours * 60 * 60 * 1000));
+            document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+        }
+    </script>
+</body>
+</html>
+
+
+</div>
+    <div class="card">
+       <div>
+    <div class="center">
+        
+        <div class="container">
+            </div>
+    </div>
+    <p>M </p>
+    <h3> &nbsp &nbsp &nbsp ...... V ......  B ...... T.</h3>
+    <style>body{
+    font-family: montserrat;
+    background-image: url('picha.webp');
+   background-size: cover;
+   background-position: center; background-repeat: no-repeat; 
+   background-attachment: fixed; 
+}
+p {
+    color: #0ef;
+    margin: -670px 0 -145px;
+    font-size: 3.9em;
+    font-weight: 1000;
+    text-align: center;
+    padding-right: 170px;
+}
+
+h3 {
+    color: #0ef;
+    margin: 114px 0 -103px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 1000;
+}
+
+.center{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+.ring{
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+      
+}
+@keyframes ring {
+    0%{
+        transform: rotate(-200deg);
+        box-shadow: 1px 5px 2px #e65coo;
+    }
+    50%{
+        transform: rotate(180deg);
+        box-shadow: 1px 5px 2px #18b201;
+    }
+    100%{
+        transform: rotate(360deg);
+        box-shadow: 1px 5px 2px #0456c8;
+    }
+}
+.ring:before{
+    position: absolute;
+    content: '';
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(255,255,255,.3);
+    
+}
+a {
+    color: #0ef;
+    text-align: center;
+    margin-top: 200px;
+}
+span{
+    color: yellow;
+    font-size: 15px;
+    letter-spacing: 1px;
+    line-height: 200px;
+    font-size: 1em;
+    font-weight: 1000;
+    margin: 20px 0 100px;
+    background: black;
+    border-radius: 3px;
+}
+span h5 {
+    color: #0ef;
+    font-size: 11px;
+    animation: zigzag 0.3s infinite;
+    margin: 120px 0 100px;
+}
+
+
+@keyframes text {
+    50%{
+        color: #1f293a;
+    }
+}
+
+
+h6 {
+    color: #0ef;
+    margin: 570px 0 -27px;
+    padding-right: 254px;
+    animation: text 10s ease-in-out infinite;
+}
+
+.Powered {
+    color: white;
+    padding-right: 215px;
+    font-size: 0.7em;
+    margin: -9px 0 -100px;
+}
+
+h4 {
+    color: white;
+    margin: -420px 0 -350px;
+    padding: 55px;
+    animation: text 5s ease-in-out infinite;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.07em;
+    font-weight: 1000;
+    font-size: 15px;
+    font-length: 100px;
+}
+h1 {
+    color: #00ff00;
+    padding-left: 180px;
+    margin: -10px 0 10px;
+    font-size: 1.5em;
+    font-weight: 1000;
+    font-size: 25px;
+    font-length: 1000px;
+}
+h2 {
+    color: red;
+    padding-left: 200px;
+    font-size: 1.8em;
+    font-weight: 1000;
+    font-size: 20px;
+    font-length: 100px;
+    margin: -15px 0 -20px;
+    animation: text 5s ease-in-out infinite;
+}
+strong {
+    color: fuchsia;
+    padding-left: 200px;
+    font-size: 1.5em;
+    font-weight: 500;
+    font-size: 20px;
+    font-length: 100px;
+    margin: -15px 0 10px;
+    animation: text 6.5s ease-in-out infinite;
+}
+
+@keyframes zigzag {
+  0%, 100% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body{
+    display: flex;
+    height: 100hv;
+    width: 100%;
+    align-items: center;
+    justify-content: center;  
+    margin: -1px 0 100px;
+}
+#app{
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    prespective: 800px;
+    margin: 80px 0 100px;
+}
+#roundNumber {
+    color: fuchsia;
+    margin: -20px 0 10px;
+    font-size: 1.4em;
+    font-weight: 1000;
+}
+.loader Label{
+    color: purple;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+.loader button {
+    background: black;
+    color: #0ef;
+     width: 60%;
+    height: 33px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+
+.loader div {
+    color: white;
+     width: 60%;
+    height: 33px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 20px 0 -50px;
+    padding-left: 8px;
+}
+
+
+.loader input {
+    border-radius: 5px;
+    width: 100%;
+    height: 25px;
+    cursor: pointer;
+}
+.inner{
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+}
+.inner.one{
+    left: 0;
+    top: 0;
+    animation: rotate-one 1.5s linear infinite;
+    border-bottom: 3px solid #efeffa;
+    box-shadow: 0px 4px 10px 1px rgba(0, 210, 255, 1);
+}
+.inner.two{
+    right: 0;
+    top: 0;
+    animation: rotate-two 2s linear infinite;
+    border-bottom: 3px solid #efeffa;
+    box-shadow: 0px 4px 10px 1px rgba(0, 210, 255, 1);
+}
+.inner.three{
+    right: 0;
+    bottom: 0;
+    animation: rotate-three 3s linear infinite;
+    border-bottom: 3px solid #efeffa;
+    box-shadow: 0px 4px 10px 1px rgba(0, 210, 255, 1);
+}
+@keyframes rotate-one{
+    0%{
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+    }
+    100%{
+        transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+    }
+}
+@keyframes rotate-two{
+    0%{
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+    }
+    100%{
+        transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+    }
+}
+@keyframes rotate-three{
+    0%{
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+    }
+    100%{
+        transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+    }
+}
+ 
+</style>
+
+<h6>Created By <br>                                      Martin Pilimoza</h6>
+<h1>Work On A..<br><h2>All Bet Site.</h2><br><strong>Lucky Jet</strong></h1>
+   </body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hesabu ya Decimal</title>
+    <style>
+        /* Staili za CSS kwa ajili ya namba */
+        #decimalNumber {
+            font-size: 2.0em;
+            font-weight: 100px;
+            color: #0ef;
+            margin: -269px 0 350px;
+            padding-right: 8px;
+            animation: zigzag 2.3s infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+ 
+
+    <script>
+        let decimalNumbers = [1.67, 4.29, 2.10, 9.24, 12.69, 2.65, 9.10, 5.15, 1498.20, 1.83, 14.08, 3.48, 1.32, 1.00, 4.96, 1.27, 1.02, 1.01, 1.39, 1.41, 1.86, 1.14, 8.90, 4.53, 2.50, 6.25, 3.16, 1.80, 1.96, 1.68, 1.02, 1.82, 2.02, 1.87, 1.11, 2.67, 2.50, 1.22, 1.29, 1.47, 4.01, 1.50, 2.40, 21.28, 4.95, 3.42, 1.00, 36.73, 1.79, 1.28, 1.15, 18.71, 3.93, 1.43, 1.38, 970.84, 2.19, 1.32, 4.81, 1.17, 6.90, 4.14, 1.17, 1.86, 18.71, 3.93, 1.43, 11.11, 1.17, 6.90, 4.14, 1.29, 1.32, 1.17, 1.86, 1.46, 4.56, 6.63, 3.06, 1.22, 2.71, 1.36, 3.42, 1.29, 1.47, 1.00, 9.17, 65.68, 1.17, 1.65, 22.55, 4.29, 3.01, 50.56, 3.20, 1.06, 1.82, 1.90, 2.88, 2.11, 2.88, 1.16, 1.28, 3.43, 1.08, 8.18, 1.63, 4.33, 5.63, 1.23, 4.28, 8.74, 110.87, 5.85, 1.30, 57.01, 1.00, 1.07, 1.10, 1.10, 2.73, 1.81, 1.46, 1.48, 16.09, 1.98, 1.69, 2.79, 1.16, 5.64, 2.74, 3.89, 103.89, 1.11, 2.27, 2.49, 28.27, 4.34, 1.45, 1.33, 1.29, 12.30, 4.45, 1.23, 74.96, 1.16, 1.88, 1.18, 1.33, 2.52, 1.37, 1.07, 1.88, 102.95, 1.51, 2.70, 9.44, 2.39, 9.39, 1.00, 1.36, 531.51, 23.25, 5.03, 1.35, 5.23, 2.45, 2.00, 3.54, 3.93, 1.19, 3.11, 1.00, 1.13, 1.93, 1.52, 1.84, 1.49, 1.04, 1.18, 1.74, 2.99, 1.12, 36.54, 8.94, 4.49, 5.03, 2.29, 1.18, 5.28, 1.00, 1.27, 1.22, 1.65, 3.59, 11.45, 1.00, 2.24, 1.00, 1.44, 1.61, 3.84, 4.45, 1.84, 1.81, 1.16, 1.72, 58.96, 2.22, 1.20, 1.17, 2.08, 7.15, 1.19, 2.04, 3.61, 1.49, 6.41, 1.04, 7.94, 1.69, 6.53, 3.00, 1.31, 218.99, 31.01, 3,40, 1.11, 1.32, 6.63, 3.06, 1.19, 2.36, 1.50, 1.00, 11.57, 4.56, 2.71, 1.36, 7.15, 2.88, 13.28, 1.89, 1.28, 1.24, 1.02, 2.16, 1.09, 2.29, 1.60, 6.45, 1.76, 2.52, 5.01, 2.34, 2.40, 2.46, 1.84, 3.14, 1.15, 1.60, 1.82, 1.41, 1.89, 1.30, 135.93, 2.07, 1.78, 23.79, 1.24, 1.90, 1.17, 1.19, 1.65, 6.68, 2.02, 1.88, 1.00, 56.81, 3.41, 1.00, 2.74, 4.62, 1.19, 2.43, 1.08, 1.00, 4.20, 24.93, 2.60, 1.29, 48.86, 7.16, 1.03, 1.74, 1.30, 1.29, 15.01, 1.41, 2.71, 2.98, 1.84, 35.09, 14.41, 1.79, 2.78, 1.34, 2.24, 1.34, 1.57, 1.11, 7.15, 1.93, 3.08, 1.79, 1.19, 1.20, 4.52, 8.33, 1.09, 1.32, 1.68, 1.06, 1.44, 2.96, 1.00, 1.74, 1.13, 1.76, 1.37, 3.29, 3.61, 2.79, 1.30, 2.96, 1.34, 3.04, 296.19, 1.82, 29.25, 23.08, 3.29, 1.09, 2.25, 2.08, 1.17, 3.14, 31.15, 3.49, 1.55, 1.12, 1.33, 1.39, 4.91, 1.36, 1.31, 1.06, 1.55, 1.40, 9.67, 3.05, 1.81, 1.77, 2.40, 1.60, 7.81, 1.07, 1.38, 55.41, 5.34, 1.53, 1.16, 5.59, 1.14, 1.01, 1.46, 1.64, 1.94, 10.76, 1.51, 1.38, 1.00, 11.68, 13.65, 12.43, 1.17, 2.37, 2.01, 1.38, 13.90, 1.02, 1.18, 1.63, 14.14, 1.44, 2.65, 6.15, 2.03, 1.10, 177.69, 1.00, 34.39, 1.13, 14.67, 1.11, 1.64, 3.88, 3.89, 1.40, 1.61, 1.20, 1.07, 1.22, 2.67, 3.60, 3.13, 2.45, 55.70, 1.02, 1.63, 1.64, 1.51, 8.63, 1.67, 10.83, 2.27, 1.65, 5.12, 1.37, 1.04, 1.45, 2.51, 67.37, 1.71, 3.68, 2.50, 1.51, 1.03, 9.36, 1.12, 7.23, 2.89, 91.40, 3.41, 1.00, 4.58, 1.00, 1.36, 1.22, 1.22, 14.02, 31.15, 1.14, 1.49, 2.03, 1.60, 26.48, 2.37, 1.65, 1.36, 1.22, 1.34, 22.68, 1.27, 16.62, 31.15, 1.01, 15.15, 1.57, 1.45, 2.51, 1.11, 2.07, 4.44, 2.50, 1.51, 1.36, 23.65, 1.39, 1.12, 7.23, 1.44, 1.30, 1.51, 3.45, 1.00, 1.00, 1.00, 1.48, 1.07, 2.57, 2.27, 1.59, 3.14, 1.60, 31.24, 3.59, 1.08, 3.64, 1.02, 1.23, 1.33, 1.00, 1.75, 1.60, 1.23, 3.78, 17.54, 1.51, 1.13, 1.14, 5.72, 1.94, 1.82, 1.58, 1.20, 4.03, 6.64, 2.52, 8.58, 7.82, 3.76, 3.09, 1.13, 1.24, 1.38, 1.43, 4.82, 1.25, 3.41, 1.70, 2.37, 2.12, 1.19, 1.65, 1.53, 1.02, 1.43, 4.38, 2.51, 2.38, 1.56, 1.15, 57.39, 1.09, 1.37, 1.94, 1.20, 1.05, 10.13, 2.25, 1.06, 1.66, 3.49, 3.94, 7.31, 5.91, 1.27, 1.04, 7.87, 1.72, 1.20, 15.83, 260.29, 1.23, 1.00, 2.05, 1.69, 2.47, 2.76, 1.45, 1.99, 4.44, 1.66, 2.95, 3.94, 2.47, 1.20, 1.25, 1.07, 2.44, 2.76, 2.95, 3.22, 1.48, 1.03, 1.58, 1.35, 3.15, 1.81, 2.59, 2.14, 1.30, 1.59, 1.30, 1.09, 1.16, 3.89, 8.53, 1.19, 1.21, 4.60, 1.30, 4.24, 1.05, 3.49, 4.78, 1.17, 1.31, 1.12, 2.49, 1.22, 1.31, 1.16, 20.45, 2.62, 4.92, 1.35, 15.72, 15.26, 1.28, 1.20, 1.02, 2.87, 3.02, 2.87, 1.87, 1.04, 5.87, 1.24, 1.39, 1.25, 3.10, 3.07, 1.06, 1.49, 2.82, 2.34, 1.36, 8.94, 2.50, 2.89, 1.00, 1.58, 1.67, 1.04, 3.13, 16.41, 1.25, 20.83, 1.14, 1.27, 1.22, 5.07, 2.01, 1.81, 1.65, 8.66, 21.30, 1.59, 1.60, 29.51, 1.20, 1.52, 3.46, 1.34, 1.18, 2.39, 1.29, 1.44, 1.10, 79.56, 1.01, 5.11, 1.32, 1.81, 1.60, 1.26, 1.09, 1.36, 2.23, 1.78, 1.51, 11.33, 1.24, 1.01, 1.98, 1.10, 2.02, 4.71, 17.50, 5.11, 1.29, 2,58, 6.56, 2.88, 1.10, 1.40, 1.98, 3.99, 19.64, 2.76, 2.36, 1.00, 2.55, 2.98, 2.54, 2.75, 4.40, 1.23, 6.25, 6.25, 1.02, 2.81, 11.17, 1.02, 2.97, 2.61, 1.19, 3.01, 5.35, 1.00, 1.54, 2.69, 1.00, 45.39, 1.09, 6.70, 3.84, 1.09, 1.20, 1.18, 1.20, 2.55, 10.26, 7.86, 1.06, 22.95, 4.43, 1.88, 2.12, 1.16, 2.79, 2.27, 2.96, 7.05, 1.62, 36.03, 1.12, 3.48, 1.23, 1.83, 1.20, 1.44, 11.44, 26.35, 1.56, 1.19, 1.20, 1.10, 1.45, 173.38, 1.21, 2.18, 2.03, 4.37, 2.15, 17.75, 1.05, 2.19, 1.65, 2.04, 1.14, 2.29, 3.26, 1.56, 2.08, 1.23, 2.54, 2.13, 1.00, 1.77, 1.29, 1.74, 2.05, 2.67, 15.65, 1.47, 1.72, 7.75, 1.00, 2.11, 2.15, 1.57, 1.48, 1.00, 6.09, 1.05, 1.72, 1.06, 1.22, 1.38, 1.28, 1.61, 1.03, 1.00, 6.74, 6.34, 1.37, 1.35, 1.26, 1.93, 3.86, 2.35, 3.99, 1.19, 1.57, 1.48, 2.42, 1.34, 13.20, 1.07, 1.36, 2.34, 2.74, 1.66, 1.51, 26.00, 2.21, 1.34, 1.80, 2.33, 7.06, 1.41, 2.52, 1.89, 25.67, 1.55, 1.08, 1.06, 4.12, 45.76, 3.43, 1.36, 2.24, 1.24, 2.36, 1.46, 1.72, 1.00, 1.44, 18.96, 2.99, 1.42, 19.12, 5.15, 1.98, 2.41, 1.09, 1.50, 1.25, 1.39, 6.21, 1.28, 3.97, 2.07, 16.09, 20.42, 5.42, 1.25, 2.31, 2.67, 2.27, 1.81, 1.34, 1.07, 1.25, 1.44, 2.49, 1.10, 1.63, 1.14, 1.62, 1.51, 2.01, 3.47, 1.88, 1.36, 3.02, 1.36, 10.07, 4.91, 8.34, 1.44, 1.29, 1.53, 3.15, 3.17, 1.48, 9.51, 1.28, 6.59, 1.19, 10.07, 3.76, 1.55, 7.44, 1.09, 29.31, 2.53, 1.25, 1.38, 2.61];
+        let currentIndex = localStorage.getItem('currentIndex') || 0;
+
+        function updateDecimalNumber() {
+            document.getElementById("decimalNumber").innerHTML = decimalNumbers[currentIndex].toFixed(2);
+            localStorage.setItem('currentIndex', currentIndex);
+        }
+
+        function changeNumber() {
+            currentIndex = (parseInt(currentIndex) + 1) % decimalNumbers.length;
+            updateDecimalNumber();
+        }
+
+        function handleOnlineStatus() {
+            if (navigator.onLine) {
+                console.log('Online!');
+                changeNumber();
+            } else {
+                console.log('Offline!');
+            }
+        }
+
+        updateDecimalNumber();
+
+        setInterval(function () {
+            changeNumber();
+        }, 17600);
+
+        window.addEventListener('online', handleOnlineStatus);
+        window.addEventListener('offline', handleOnlineStatus);
+
+    </script>
+
+</body>
+</html>
+<div class="Powered">Powered By Hacker</div>
+<a href="https://martinpilimoza.github.io/Martinvipbettingtips/">Instructions</a>
+
+
