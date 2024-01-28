@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Round</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        body{
+    font-family: montserrat;
+    background-image: url('picha.jpg');
+   background-size: cover;
+   background-position: center; background-repeat: no-repeat; 
+   background-attachment: fixed; 
+}
+
+        .calculator {
+            text-align: center;
+            justify-content: center;
+        }
+
+        input, button, select {
+            margin: 5px;
+            padding: 8px;
+        }
+
+        #result {
+            font-size: 20px;
+            color: red;
+            text-align: center;
+            justify-content: center;
+            margin: 20px 0 5px;
+            font-weight: 1000;
+        }
+
+        label {
+            margin-bottom: 5px;
+            color: red;
+            font-size: 17px;
+            font-weight: 1000;
+            background: black;
+        }
+
+        #verificationLabel, #verificationCode {
+            display: flex;
+            color: red;
+            
+        }
+
+        #verificationBox {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: red;
+        }
+        #userOption {
+            padding: 8px;
+            margin-bottom: 2px;
+            color: #0ef;
+            background: black;
+            font-size: 1em;
+            font-weight: 700;
+            animation: text 10s ease-in-out infinite;
+            animation: zigzag 2.3s infinite;
+            box-shadow: 0 0 7px rgba(255,255,255,.3);
+            width: 50hv;
+        }
+        
+        #generateButton {
+            cursor: pointer;
+            background: black;
+            color: red;
+            font-size: 1em;
+            font-weight: 700;
+        } 
+        #Clear {
+            color: red;
+            background: black;
+            font-size: 1.1em;
+            font-weight: 1000;
+        }
+        
+      .Powered {
+          color: white;
+          font-size: 0.7em;
+          margin: -20px 0 -150px;
+          padding-left: 25px;
+}
+
+      a {
+    color: #0ef;
+    text-align: center;
+    margin-top: 2px;
+    justify-content: center;
+    text-align: center;
+    padding-left: 168px;
+    background: none;
+    cursor: none;
+    font-weight: 700;
+}
+        
+        @keyframes zigzag {
+  0%, 100% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes text {
+    50%{
+        color: #1f293a;
+    }
+}
+
+
+  h6 {
+    color: #0ef;
+    margin: 135px 0 -300px;
+    animation: text 10s ease-in-out infinite;
+    padding-left: 28px;
+}
+
+h1 {
+    color: #00ff00;
+    padding-left: 252px;
+    margin: 285px 0 10px;
+    font-size: 1.5em;
+    font-weight: 1000;
+    font-size: 25px;
+    font-length: 1000px;
+}
+h2 {
+    color: fuchsia;
+    padding-left: 262px;
+    font-size: 1.8em;
+    font-weight: 1000;
+    font-size: 20px;
+    font-length: 100px;
+    margin: -15px 0 -20px;
+    animation: text 5s ease-in-out infinite;
+}
+
+h3 {
+    color: #0ef;
+    margin: -141px 0 13px;
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 1000;
+}
+
+strong {
+    color: red;
+    padding-left: 275px;
+    font-size: 1.5em;
+    font-weight: 500;
+    font-size: 20px;
+    font-length: 100px;
+    margin: -15px 0 10px;
+    animation: text 6.5s ease-in-out infinite;
+}
+p {
+    color: #0ef;
+    margin: -23px 0 110px;
+    font-size: 3.9em;
+    font-weight: 1000;
+    text-align: center;
+    padding-right: 170px;
+}
+    </style>
+</head>
+<body>
+    <p>M </p>
+    <h3> &nbsp &nbsp &nbsp ...... V ......  B ...... T.</h3>
+    <div class="calculator"><br><br><br><br><br>
+        <label for="previousCoffiecentInput">Enter Previous Cofficent</label><br>
+        <input type="number" id="previousCoffiecentInput" placeholder="Enter Previous Cofficent" step="any"><br>
+
+        <label for="userOption">Choose option:</label>
+        <select id="userOption" name="userOption">
+            <option value="vip">VIP</option>
+            <option value="free">Free</option>
+        </select><br>
+
+        <div id="verificationBox">
+            <label for="verificationCode" id="verificationLabel">Enter VIP Verification Code</label>
+            <input type="number" id="verificationCode" placeholder="Enter VIP Verification Code">
+        </div>
+
+        <button id="generateButton" onclick="findNextValue()">Get Cofficent</button>
+        <button id="Clear"onclick="clearAll()">Clear</button>
+      <div id="result">Cofficent will be displayed here</div>
+    </div>
+
+    <script>
+        var freeRoundsRemaining = 5;
+        var lastFreeRoundTime = localStorage.getItem('lastFreeRoundTime');
+        const hoursToWait = 4;
+
+        function findNextValue() {
+            var previousCoefficient = parseFloat(document.getElementById('previousCoffiecentInput').value);
+            var values = [1.00, 1.67, 1.00, 4.29, 1.00, 3.50, 1.00, 4.00];
+
+            if (!isNaN(previousCoefficient)) {
+                var index = values.findIndex(value => Math.abs(value - previousCoefficient) < Number.EPSILON);
+
+                if (index !== -1 && index < values.length - 1) {
+                    var nextValue = values[index + 1].toFixed(2);
+                    var userOption = document.getElementById('userOption');
+                    var verificationCode = document.getElementById('verificationCode').value;
+
+                    if (userOption) {
+                        if (userOption.value === 'vip') {
+                            if (verificationCode === '9917') {
+                                document.getElementById('result').textContent = 'Next Coefficient for VIP: ' + nextValue;
+                            } else {
+                                document.getElementById('result').textContent = 'Invalid VIP Verification Code.';
+                            }
+                        } else if (userOption.value === 'free') {
+                            if (canStartFreeRound()) {
+                                document.getElementById('result').textContent = 'Next Coefficient for Free: ' + nextValue;
+                            } else {
+                                document.getElementById('result').textContent = 'Wait for 4 hours to get Free Round.';
+                            }
+                        }
+                    } else {
+                        document.getElementById('result').textContent = 'Please choose an option (VIP or Free).';
+                    }
+                } else {
+                    document.getElementById('result').textContent = 'We are updating the next Coefficient.';
+                }
+            } else {
+                document.getElementById('result').textContent = 'Please enter a Coefficient number.';
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('previousCoffiecentInput').value = '';
+            document.getElementById('verificationCode').value = '';
+            document.getElementById('result').textContent = 'Cofficent will be displayed here';
+        }
+
+        document.addEventListener('change', function() {
+            var userOption = document.getElementById('userOption');
+            var verificationBox = document.getElementById('verificationBox');
+
+            if (userOption && userOption.value === 'vip') {
+                verificationBox.style.display = 'flex';
+            } else {
+                verificationBox.style.display = 'none';
+            }
+        });
+
+        function canStartFreeRound() {
+            if (freeRoundsRemaining > 0 && (lastFreeRoundTime === null || (new Date() - new Date(lastFreeRoundTime)) >= hoursToWait * 60 * 60 * 1000)) {
+                localStorage.setItem('lastFreeRoundTime', new Date().toISOString());
+                freeRoundsRemaining--;
+                return true;
+            }
+            return false;
+        }
+    </script>
+</body>
+<h6>Created By <br>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Martin Pilimoza</h6>
+<h1>Work On A..<br><h2>All Bet Site.</h2><br><strong>Avaitor</strong></h1>
+</html>
+<div class="Powered">&nbsp &nbsp Powered By Hacker</div>
+<a href="https://martinpilimoza.github1.io/Martinvipbettingtips/">Instructions</a>
